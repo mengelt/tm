@@ -9,11 +9,11 @@ const statusConfig = {
   [ReviewStatus.CANCELED]: { color: 'default', label: 'Canceled' },
 };
 
-export default function StatusChip({ status, size = 'small' }) {
+export default function StatusChip({ status, label: labelOverride, size = 'small' }) {
   const config = statusConfig[status] || { color: 'default', label: status };
   return (
     <Chip
-      label={config.label}
+      label={labelOverride || config.label}
       color={config.color}
       size={size}
       variant="filled"

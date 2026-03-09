@@ -1,5 +1,5 @@
 import {
-  idColumn,
+  idColumnPending,
   subjectColumn,
   urgentColumn,
   submitterColumn,
@@ -9,7 +9,7 @@ import {
 
 export default function getCustomerWorkColumns() {
   return [
-    idColumn,
+    idColumnPending,
     subjectColumn,
     urgentColumn,
     submitterColumn,

@@ -1,4 +1,4 @@
-import { GridActionsCellItem } from '@mui/x-data-grid-premium';
+import { GridActionsCellItem } from '@mui/x-data-grid';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   idColumn,
@@ -21,9 +21,14 @@ export default function getCompletedColumns({ onView }) {
       width: 120,
       valueGetter: (value) => {
         if (!value || value.length === 0) return '—';
-        const approves = value.filter((v) => v.result === 'Approve').length;
+        const accepts = value.filter((v) => v.result === 'Accept').length;
+        const withActions = value.filter((v) => v.result === 'Accept with Actions').length;
         const rejects = value.filter((v) => v.result === 'Reject').length;
-        return `${approves}A / ${rejects}R`;
+        const parts = [];
+        if (accepts) parts.push(`${accepts} Accept`);
+        if (withActions) parts.push(`${withActions} w/Actions`);
+        if (rejects) parts.push(`${rejects} Reject`);
+        return parts.join(', ') || '—';
       },
     },
     {

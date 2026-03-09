@@ -1,5 +1,5 @@
 import {
-  idColumn,
+  idColumnPending,
   subjectColumn,
   submitterColumn,
   submittedDateColumn,
@@ -8,7 +8,7 @@ import {
 
 export default function getCanceledColumns() {
   return [
-    idColumn,
+    idColumnPending,
     subjectColumn,
     submitterColumn,
     submittedDateColumn,

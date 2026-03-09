@@ -12,6 +12,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListItemSecondaryAction,
   CircularProgress,
   Alert,
   Stack,
@@ -20,6 +21,7 @@ import {
   ToggleButtonGroup,
   Paper,
   IconButton,
+  Tooltip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
@@ -28,8 +30,8 @@ import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import DeleteIcon from '@mui/icons-material/Delete';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
+import CloseIcon from '@mui/icons-material/Close';
 import dayjs from 'dayjs';
 import StatusChip from '../shared/StatusChip';
 import ConfirmDialog from '../shared/ConfirmDialog';
@@ -38,10 +40,15 @@ import { useAuth } from '../../context/AuthContext';
 import {
   fetchReviewById,
   addReviewNote,
-  addReviewVote,
   completeReview,
   returnToCustomer,
 } from '../../mock/api';
+
+const REVIEWERS = [
+  { name: 'David Chen', title: 'Senior Security Architect' },
+  { name: 'Emily Park', title: 'Threat Modeling Lead' },
+  { name: 'James Liu', title: 'Application Security Engineer' },
+];
 
 export default function StartReview() {
   const { id } = useParams();
@@ -51,10 +58,15 @@ export default function StartReview() {
   const [review, setReview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [noteText, setNoteText] = useState('');
-  const [voterName, setVoterName] = useState('');
-  const [voteValue, setVoteValue] = useState(null);
   const [notes, setNotes] = useState([]);
-  const [votes, setVotes] = useState([]);
+  const [actionItemText, setActionItemText] = useState('');
+  const [actionItems, setActionItems] = useState([]);
+  const [attachments, setAttachments] = useState([]);
+  const [reviewerVotes, setReviewerVotes] = useState({
+    'David Chen': null,
+    'Emily Park': null,
+    'James Liu': null,
+  });
   const [completing, setCompleting] = useState(false);
   const [returnDialog, setReturnDialog] = useState(false);
 
@@ -63,7 +75,7 @@ export default function StartReview() {
     fetchReviewById(id).then((data) => {
       setReview(data);
       setNotes(data.reviewNotes || []);
-      setVotes(data.reviewVotes || []);
+      setAttachments(data.attachments || []);
       setLoading(false);
     });
   }, [id]);
@@ -85,22 +97,42 @@ export default function StartReview() {
     setNotes((prev) => prev.filter((n) => n.id !== noteId));
   };
 
-  const handleAddVote = () => {
-    if (!voterName.trim() || !voteValue) return;
-    const vote = {
-      voter: voterName.trim(),
-      result: voteValue,
-      timestamp: new Date().toISOString(),
-    };
-    setVotes((prev) => [...prev, vote]);
-    addReviewVote(id, vote);
-    setVoterName('');
-    setVoteValue(null);
+  const handleAddActionItem = () => {
+    if (!actionItemText.trim()) return;
+    setActionItems((prev) => [
+      ...prev,
+      { id: `ai-${Date.now()}`, text: actionItemText.trim() },
+    ]);
+    setActionItemText('');
   };
+
+  const handleRemoveActionItem = (itemId) => {
+    setActionItems((prev) => prev.filter((a) => a.id !== itemId));
+  };
+
+  const handleDeleteAttachment = (idx) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleVoteChange = (reviewerName, newValue) => {
+    setReviewerVotes((prev) => ({ ...prev, [reviewerName]: newValue }));
+  };
+
+  const hasAnyReject = Object.values(reviewerVotes).some(
+    (v) => v === VoteResult.REJECT
+  );
+  const allVotesCast = Object.values(reviewerVotes).every((v) => v !== null);
 
   const handleComplete = async () => {
     setCompleting(true);
-    await completeReview(id, { notes, votes });
+    const votes = Object.entries(reviewerVotes)
+      .filter(([, result]) => result !== null)
+      .map(([voter, result]) => ({
+        voter,
+        result,
+        timestamp: new Date().toISOString(),
+      }));
+    await completeReview(id, { notes, votes, actionItems });
     navigate('/team');
   };
 
@@ -114,6 +146,13 @@ export default function StartReview() {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const getVoteColor = (value) => {
+    if (value === VoteResult.ACCEPT) return 'success';
+    if (value === VoteResult.ACCEPT_WITH_ACTIONS) return 'warning';
+    if (value === VoteResult.REJECT) return 'error';
+    return 'standard';
   };
 
   if (loading) {
@@ -139,9 +178,6 @@ export default function StartReview() {
           <Typography variant="h5">{review.subject}</Typography>
           <Box sx={{ display: 'flex', gap: 1, mt: 1, alignItems: 'center' }}>
             <StatusChip status={review.status} />
-            <Typography variant="body2" color="text.secondary">
-              {review.id}
-            </Typography>
             {review.urgent && <Chip label="URGENT" color="error" size="small" />}
           </Box>
         </Box>
@@ -185,19 +221,37 @@ export default function StartReview() {
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>Attachments</Typography>
-            <List dense>
-              {review.attachments.map((att, idx) => (
-                <ListItem key={idx}>
-                  <ListItemIcon sx={{ minWidth: 36 }}>
-                    <InsertDriveFileIcon color="action" />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={att.fileName}
-                    secondary={`${att.type} — ${formatSize(att.fileSize)}`}
-                  />
-                </ListItem>
-              ))}
-            </List>
+            {attachments.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                All attachments have been removed.
+              </Typography>
+            ) : (
+              <List dense>
+                {attachments.map((att, idx) => (
+                  <ListItem key={idx} sx={{ pr: 6 }}>
+                    <ListItemIcon sx={{ minWidth: 36 }}>
+                      <InsertDriveFileIcon color="action" />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={att.fileName}
+                      secondary={`${att.type} — ${formatSize(att.fileSize)}`}
+                    />
+                    <ListItemSecondaryAction>
+                      <Tooltip title="Delete attachment">
+                        <IconButton
+                          edge="end"
+                          size="small"
+                          onClick={() => handleDeleteAttachment(idx)}
+                          color="error"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                ))}
+              </List>
+            )}
           </CardContent>
         </Card>
 
@@ -254,82 +308,169 @@ export default function StartReview() {
           </CardContent>
         </Card>
 
-        {/* Votes */}
+        {/* Action Items */}
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
-              <HowToVoteIcon sx={{ verticalAlign: 'text-bottom', mr: 1 }} />
-              Review Votes
+              <PlaylistAddCheckIcon sx={{ verticalAlign: 'text-bottom', mr: 1 }} />
+              Action Items
             </Typography>
 
-            {votes.length > 0 && (
+            {actionItems.length > 0 && (
               <Stack spacing={1} sx={{ mb: 2 }}>
-                {votes.map((vote, idx) => (
+                {actionItems.map((item) => (
                   <Box
-                    key={idx}
+                    key={item.id}
                     sx={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 1.5,
+                      gap: 1,
                       p: 1,
-                      borderRadius: 1,
-                      bgcolor: vote.result === VoteResult.APPROVE ? 'success.50' : 'error.50',
+                      pl: 2,
+                      borderRadius: 2,
+                      bgcolor: 'grey.50',
+                      border: '1px solid',
+                      borderColor: 'divider',
                     }}
                   >
-                    {vote.result === VoteResult.APPROVE ? (
-                      <ThumbUpIcon color="success" fontSize="small" />
-                    ) : (
-                      <ThumbDownIcon color="error" fontSize="small" />
-                    )}
                     <Typography variant="body2" sx={{ flex: 1 }}>
-                      {vote.voter}
+                      {item.text}
                     </Typography>
-                    <Chip
-                      label={vote.result}
+                    <IconButton
                       size="small"
-                      color={vote.result === VoteResult.APPROVE ? 'success' : 'error'}
-                      variant="outlined"
-                    />
+                      onClick={() => handleRemoveActionItem(item.id)}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
                   </Box>
                 ))}
               </Stack>
             )}
 
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 1 }}>
               <TextField
                 size="small"
-                placeholder="Voter name"
-                value={voterName}
-                onChange={(e) => setVoterName(e.target.value)}
-                sx={{ flex: 1 }}
+                placeholder="Add an action item..."
+                value={actionItemText}
+                onChange={(e) => setActionItemText(e.target.value)}
+                fullWidth
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleAddActionItem();
+                  }
+                }}
               />
-              <ToggleButtonGroup
-                value={voteValue}
-                exclusive
-                onChange={(_, v) => setVoteValue(v)}
-                size="small"
-              >
-                <ToggleButton value={VoteResult.APPROVE} color="success">
-                  <ThumbUpIcon fontSize="small" />
-                </ToggleButton>
-                <ToggleButton value={VoteResult.REJECT} color="error">
-                  <ThumbDownIcon fontSize="small" />
-                </ToggleButton>
-              </ToggleButtonGroup>
               <Button
                 variant="outlined"
-                onClick={handleAddVote}
-                disabled={!voterName.trim() || !voteValue}
+                onClick={handleAddActionItem}
+                disabled={!actionItemText.trim()}
               >
-                Vote
+                Add
               </Button>
             </Box>
           </CardContent>
         </Card>
 
+        {/* Reviewer Votes */}
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom>
+              <HowToVoteIcon sx={{ verticalAlign: 'text-bottom', mr: 1 }} />
+              Reviewer Decisions
+            </Typography>
+
+            <Stack spacing={2}>
+              {REVIEWERS.map((reviewer) => {
+                const vote = reviewerVotes[reviewer.name];
+                return (
+                  <Paper
+                    key={reviewer.name}
+                    variant="outlined"
+                    sx={{
+                      p: 2,
+                      borderRadius: 2,
+                      borderColor: vote === VoteResult.REJECT
+                        ? 'error.300'
+                        : vote === VoteResult.ACCEPT
+                          ? 'success.300'
+                          : vote === VoteResult.ACCEPT_WITH_ACTIONS
+                            ? 'warning.300'
+                            : 'divider',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+                      <Box>
+                        <Typography variant="subtitle2">{reviewer.name}</Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {reviewer.title}
+                        </Typography>
+                      </Box>
+                      <ToggleButtonGroup
+                        value={vote}
+                        exclusive
+                        onChange={(_, v) => {
+                          if (v !== null) handleVoteChange(reviewer.name, v);
+                        }}
+                        size="small"
+                      >
+                        <ToggleButton
+                          value={VoteResult.REJECT}
+                          sx={{
+                            px: 2,
+                            '&.Mui-selected': {
+                              bgcolor: 'error.main',
+                              color: 'white',
+                              '&:hover': { bgcolor: 'error.dark' },
+                            },
+                          }}
+                        >
+                          Reject
+                        </ToggleButton>
+                        <ToggleButton
+                          value={VoteResult.ACCEPT_WITH_ACTIONS}
+                          sx={{
+                            px: 2,
+                            '&.Mui-selected': {
+                              bgcolor: 'warning.main',
+                              color: 'white',
+                              '&:hover': { bgcolor: 'warning.dark' },
+                            },
+                          }}
+                        >
+                          Accept with Actions
+                        </ToggleButton>
+                        <ToggleButton
+                          value={VoteResult.ACCEPT}
+                          sx={{
+                            px: 2,
+                            '&.Mui-selected': {
+                              bgcolor: 'success.main',
+                              color: 'white',
+                              '&:hover': { bgcolor: 'success.dark' },
+                            },
+                          }}
+                        >
+                          Accept
+                        </ToggleButton>
+                      </ToggleButtonGroup>
+                    </Box>
+                  </Paper>
+                );
+              })}
+            </Stack>
+
+            {hasAnyReject && (
+              <Alert severity="error" sx={{ mt: 2 }}>
+                One or more reviewers have rejected. The review cannot be completed until all rejections are resolved.
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Actions */}
         <Divider />
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', pb: 4 }}>
           <Button
             variant="outlined"
             color="warning"
@@ -338,15 +479,27 @@ export default function StartReview() {
           >
             Return to Customer
           </Button>
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={completing ? <CircularProgress size={16} /> : <CheckCircleIcon />}
-            onClick={handleComplete}
-            disabled={completing}
+          <Tooltip
+            title={
+              hasAnyReject
+                ? 'Cannot complete — a reviewer has rejected'
+                : !allVotesCast
+                  ? 'All reviewers must cast their vote'
+                  : ''
+            }
           >
-            Complete Review
-          </Button>
+            <span>
+              <Button
+                variant="contained"
+                color="success"
+                startIcon={completing ? <CircularProgress size={16} /> : <CheckCircleIcon />}
+                onClick={handleComplete}
+                disabled={completing || hasAnyReject || !allVotesCast}
+              >
+                Complete Review
+              </Button>
+            </span>
+          </Tooltip>
         </Box>
       </Stack>
 

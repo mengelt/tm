@@ -12,7 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import CancelIcon from '@mui/icons-material/Cancel';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import InboxIcon from '@mui/icons-material/Inbox';
-import { DataGridPremium, GridActionsCellItem } from '@mui/x-data-grid-premium';
+import { DataGrid, GridActionsCellItem } from '@mui/x-data-grid';
 import dayjs from 'dayjs';
 import StatusChip from '../shared/StatusChip';
 import ConfirmDialog from '../shared/ConfirmDialog';
@@ -51,6 +51,12 @@ export default function CustomerDashboard() {
       field: 'id',
       headerName: 'ID',
       width: 140,
+      renderCell: (params) => {
+        if (params.row.status === ReviewStatus.TM_REVIEW_COMPLETE) {
+          return params.value;
+        }
+        return <span style={{ color: '#9e9e9e', fontStyle: 'italic' }}>N/A</span>;
+      },
     },
     {
       field: 'subject',
@@ -61,8 +67,17 @@ export default function CustomerDashboard() {
     {
       field: 'status',
       headerName: 'Status',
-      width: 180,
-      renderCell: (params) => <StatusChip status={params.value} />,
+      width: 200,
+      renderCell: (params) => (
+        <StatusChip
+          status={params.value}
+          label={
+            params.value === ReviewStatus.CUSTOMER_WORK_NEEDED
+              ? 'Returned for Rework'
+              : undefined
+          }
+        />
+      ),
     },
     {
       field: 'urgent',
@@ -102,8 +117,9 @@ export default function CustomerDashboard() {
             <GridActionsCellItem
               key="edit"
               icon={<EditIcon />}
-              label="Re-Submit"
+              label="Edit & Re-Submit"
               onClick={() => navigate(`/customer/edit/${params.id}`)}
+              showInMenu={false}
             />,
             <GridActionsCellItem
               key="cancel-cw"
@@ -188,7 +204,7 @@ export default function CustomerDashboard() {
         ) : reviews.length === 0 ? (
           renderEmptyState()
         ) : (
-          <DataGridPremium
+          <DataGrid
             rows={reviews}
             columns={columns}
             initialState={{

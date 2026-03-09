@@ -3,6 +3,7 @@ import AppLayout from './components/layout/AppLayout';
 import CustomerDashboard from './components/customer/CustomerDashboard';
 import IntakeForm from './components/customer/IntakeForm';
 import TeamDashboard from './components/team/TeamDashboard';
+import IntakeDetail from './components/team/IntakeDetail';
 import StartReview from './components/review/StartReview';
 import ViewReview from './components/review/ViewReview';
 import RoleRedirect from './components/RoleRedirect';
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: 'customer/new', element: <IntakeForm /> },
       { path: 'customer/edit/:id', element: <IntakeForm /> },
       { path: 'team', element: <TeamDashboard /> },
+      { path: 'team/intake/:id', element: <IntakeDetail /> },
       { path: 'team/review/:id', element: <StartReview /> },
       { path: 'team/review/:id/view', element: <ViewReview /> },
       { path: '*', element: <Navigate to="/" replace /> },

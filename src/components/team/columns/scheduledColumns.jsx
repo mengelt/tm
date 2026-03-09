@@ -1,9 +1,9 @@
-import { GridActionsCellItem } from '@mui/x-data-grid-premium';
+import { GridActionsCellItem } from '@mui/x-data-grid';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import EventRepeatIcon from '@mui/icons-material/EventRepeat';
 import CancelIcon from '@mui/icons-material/Cancel';
 import {
-  idColumn,
+  idColumnPending,
   subjectColumn,
   urgentColumn,
   submitterColumn,
@@ -13,7 +13,7 @@ import {
 
 export default function getScheduledColumns({ onStart, onReschedule, onCancel }) {
   return [
-    idColumn,
+    idColumnPending,
     subjectColumn,
     urgentColumn,
     submitterColumn,

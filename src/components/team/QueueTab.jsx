@@ -1,5 +1,5 @@
 import { Paper, Box, CircularProgress, Typography } from '@mui/material';
-import { DataGridPremium } from '@mui/x-data-grid-premium';
+import { DataGrid } from '@mui/x-data-grid';
 
 export default function QueueTab({ rows, columns, loading }) {
   if (loading) {
@@ -20,7 +20,7 @@ export default function QueueTab({ rows, columns, loading }) {
 
   return (
     <Paper sx={{ height: 520 }}>
-      <DataGridPremium
+      <DataGrid
         rows={rows}
         columns={columns}
         initialState={{

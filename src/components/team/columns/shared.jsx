@@ -7,6 +7,15 @@ export const idColumn = {
   width: 145,
 };
 
+export const idColumnPending = {
+  field: 'id',
+  headerName: 'ID',
+  width: 145,
+  renderCell: () => (
+    <span style={{ color: '#9e9e9e', fontStyle: 'italic' }}>N/A</span>
+  ),
+};
+
 export const subjectColumn = {
   field: 'subject',
   headerName: 'Subject',

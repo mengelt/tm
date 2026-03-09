@@ -1,9 +1,7 @@
-import { GridActionsCellItem } from '@mui/x-data-grid-premium';
-import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
-import EventIcon from '@mui/icons-material/Event';
-import CancelIcon from '@mui/icons-material/Cancel';
+import { GridActionsCellItem } from '@mui/x-data-grid';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
-  idColumn,
+  idColumnPending,
   subjectColumn,
   urgentColumn,
   submitterColumn,
@@ -11,9 +9,9 @@ import {
   needByDateColumn,
 } from './shared';
 
-export default function getIntakeReviewColumns({ onReturn, onSchedule, onCancel }) {
+export default function getIntakeReviewColumns({ onViewDetails }) {
   return [
-    idColumn,
+    idColumnPending,
     subjectColumn,
     urgentColumn,
     submitterColumn,
@@ -23,25 +21,13 @@ export default function getIntakeReviewColumns({ onReturn, onSchedule, onCancel 
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',
-      width: 150,
+      width: 100,
       getActions: (params) => [
         <GridActionsCellItem
-          key="return"
-          icon={<AssignmentReturnIcon />}
-          label="Return to Customer"
-          onClick={() => onReturn(params.row)}
-        />,
-        <GridActionsCellItem
-          key="schedule"
-          icon={<EventIcon />}
-          label="Schedule Review"
-          onClick={() => onSchedule(params.row)}
-        />,
-        <GridActionsCellItem
-          key="cancel"
-          icon={<CancelIcon />}
-          label="Cancel Review"
-          onClick={() => onCancel(params.row)}
+          key="view"
+          icon={<VisibilityIcon />}
+          label="View Details"
+          onClick={() => onViewDetails(params.row)}
         />,
       ],
     },

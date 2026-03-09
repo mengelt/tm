@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Tabs, Tab, Badge, Chip } from '@mui/material';
+import { Box, Typography, Tabs, Tab } from '@mui/material';
 import InboxIcon from '@mui/icons-material/Inbox';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import EventIcon from '@mui/icons-material/Event';
@@ -17,8 +17,6 @@ import getCanceledColumns from './columns/canceledColumns';
 import { ReviewStatus } from '../../types';
 import {
   fetchReviews,
-  returnToCustomer,
-  scheduleReview,
   rescheduleReview,
   cancelReview,
 } from '../../mock/api';
@@ -38,9 +36,8 @@ export default function TeamDashboard() {
   const [loading, setLoading] = useState(true);
 
   // Dialog state
-  const [returnDialog, setReturnDialog] = useState({ open: false, review: null });
   const [cancelDialog, setCancelDialog] = useState({ open: false, review: null });
-  const [scheduleDialog, setScheduleDialog] = useState({ open: false, review: null, isReschedule: false });
+  const [scheduleDialog, setScheduleDialog] = useState({ open: false, review: null });
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -60,39 +57,27 @@ export default function TeamDashboard() {
   });
 
   // Action handlers
-  const handleReturn = async (reason) => {
-    await returnToCustomer(returnDialog.review.id, reason);
-    setReturnDialog({ open: false, review: null });
-    loadData();
-  };
-
   const handleCancel = async () => {
     await cancelReview(cancelDialog.review.id);
     setCancelDialog({ open: false, review: null });
     loadData();
   };
 
-  const handleSchedule = async (date) => {
-    if (scheduleDialog.isReschedule) {
-      await rescheduleReview(scheduleDialog.review.id, date);
-    } else {
-      await scheduleReview(scheduleDialog.review.id, date);
-    }
-    setScheduleDialog({ open: false, review: null, isReschedule: false });
+  const handleReschedule = async (date) => {
+    await rescheduleReview(scheduleDialog.review.id, date);
+    setScheduleDialog({ open: false, review: null });
     loadData();
   };
 
   // Build columns per status
   const columnsByTab = [
     getIntakeReviewColumns({
-      onReturn: (row) => setReturnDialog({ open: true, review: row }),
-      onSchedule: (row) => setScheduleDialog({ open: true, review: row, isReschedule: false }),
-      onCancel: (row) => setCancelDialog({ open: true, review: row }),
+      onViewDetails: (row) => navigate(`/team/intake/${row.id}`),
     }),
     getCustomerWorkColumns(),
     getScheduledColumns({
       onStart: (row) => navigate(`/team/review/${row.id}`),
-      onReschedule: (row) => setScheduleDialog({ open: true, review: row, isReschedule: true }),
+      onReschedule: (row) => setScheduleDialog({ open: true, review: row }),
       onCancel: (row) => setCancelDialog({ open: true, review: row }),
     }),
     getCompletedColumns({
@@ -128,34 +113,13 @@ export default function TeamDashboard() {
             key={status}
             icon={icon}
             iconPosition="start"
-            label={
-              <Badge
-                badgeContent={reviewsByStatus[status]?.length || 0}
-                color="primary"
-                sx={{ '& .MuiBadge-badge': { right: -16, top: -2 } }}
-              >
-                <Box sx={{ pr: 1.5 }}>{label}</Box>
-              </Badge>
-            }
+            label={label}
             sx={{ gap: 0.5 }}
           />
         ))}
       </Tabs>
 
       <QueueTab rows={currentRows} columns={currentColumns} loading={loading} />
-
-      {/* Return to Customer Dialog */}
-      <ConfirmDialog
-        open={returnDialog.open}
-        title="Return to Customer"
-        message={`Return "${returnDialog.review?.subject}" to the customer for rework. Please provide a reason.`}
-        confirmLabel="Return to Customer"
-        confirmColor="warning"
-        showReasonField
-        reasonLabel="Reason for return"
-        onConfirm={handleReturn}
-        onCancel={() => setReturnDialog({ open: false, review: null })}
-      />
 
       {/* Cancel Dialog */}
       <ConfirmDialog
@@ -168,14 +132,14 @@ export default function TeamDashboard() {
         onCancel={() => setCancelDialog({ open: false, review: null })}
       />
 
-      {/* Schedule / Reschedule Dialog */}
+      {/* Reschedule Dialog */}
       <ScheduleDateDialog
         open={scheduleDialog.open}
-        title={scheduleDialog.isReschedule ? 'Reschedule Review' : 'Schedule Review'}
-        confirmLabel={scheduleDialog.isReschedule ? 'Reschedule' : 'Schedule'}
-        initialDate={scheduleDialog.isReschedule ? scheduleDialog.review?.scheduledDate : null}
-        onConfirm={handleSchedule}
-        onCancel={() => setScheduleDialog({ open: false, review: null, isReschedule: false })}
+        title="Reschedule Review"
+        confirmLabel="Reschedule"
+        initialDate={scheduleDialog.review?.scheduledDate}
+        onConfirm={handleReschedule}
+        onCancel={() => setScheduleDialog({ open: false, review: null })}
       />
     </Box>
   );

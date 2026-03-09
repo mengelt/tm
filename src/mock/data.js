@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { ReviewStatus, AttachmentType, VoteResult } from '../types';
 
-let nextId = 16;
+let nextId = 17;
 export function generateId() {
   const year = String(new Date().getFullYear()).slice(-2);
   return `TMR-${year}-${String(nextId++).padStart(4, '0')}`;
@@ -163,9 +163,9 @@ export const seedReviews = [
       { id: 'n2', text: 'Recommend adding SCA scanning as an additional gate.', author: 'Emily Park', timestamp: today.subtract(5, 'day').toISOString() },
     ],
     reviewVotes: [
-      { voter: 'David Chen', result: VoteResult.APPROVE, timestamp: today.subtract(5, 'day').toISOString() },
-      { voter: 'Emily Park', result: VoteResult.APPROVE, timestamp: today.subtract(5, 'day').toISOString() },
-      { voter: 'James Liu', result: VoteResult.APPROVE, timestamp: today.subtract(5, 'day').toISOString() },
+      { voter: 'David Chen', result: VoteResult.ACCEPT, timestamp: today.subtract(5, 'day').toISOString() },
+      { voter: 'Emily Park', result: VoteResult.ACCEPT, timestamp: today.subtract(5, 'day').toISOString() },
+      { voter: 'James Liu', result: VoteResult.ACCEPT, timestamp: today.subtract(5, 'day').toISOString() },
     ],
     returnReason: null,
   },
@@ -189,9 +189,9 @@ export const seedReviews = [
       { id: 'n4', text: 'Ingress controller configuration needs attention - flagged for follow-up.', author: 'James Liu', timestamp: today.subtract(12, 'day').toISOString() },
     ],
     reviewVotes: [
-      { voter: 'David Chen', result: VoteResult.APPROVE, timestamp: today.subtract(12, 'day').toISOString() },
-      { voter: 'Emily Park', result: VoteResult.REJECT, timestamp: today.subtract(12, 'day').toISOString() },
-      { voter: 'James Liu', result: VoteResult.APPROVE, timestamp: today.subtract(12, 'day').toISOString() },
+      { voter: 'David Chen', result: VoteResult.ACCEPT, timestamp: today.subtract(12, 'day').toISOString() },
+      { voter: 'Emily Park', result: VoteResult.ACCEPT_WITH_ACTIONS, timestamp: today.subtract(12, 'day').toISOString() },
+      { voter: 'James Liu', result: VoteResult.ACCEPT, timestamp: today.subtract(12, 'day').toISOString() },
     ],
     returnReason: null,
   },
@@ -214,8 +214,8 @@ export const seedReviews = [
       { id: 'n5', text: 'API authentication uses OAuth 2.0 with proper scoping. Rate limiting in place.', author: 'Emily Park', timestamp: today.subtract(17, 'day').toISOString() },
     ],
     reviewVotes: [
-      { voter: 'David Chen', result: VoteResult.APPROVE, timestamp: today.subtract(17, 'day').toISOString() },
-      { voter: 'Emily Park', result: VoteResult.APPROVE, timestamp: today.subtract(17, 'day').toISOString() },
+      { voter: 'David Chen', result: VoteResult.ACCEPT, timestamp: today.subtract(17, 'day').toISOString() },
+      { voter: 'Emily Park', result: VoteResult.ACCEPT, timestamp: today.subtract(17, 'day').toISOString() },
     ],
     returnReason: null,
   },
@@ -313,5 +313,24 @@ export const seedReviews = [
     reviewNotes: [],
     reviewVotes: [],
     returnReason: 'Questionnaire Section 3 (Data Classification) is incomplete. Please fill in all required fields.',
+  },
+  {
+    id: 'TMR-26-0016',
+    subject: 'Customer Identity Verification Service',
+    description: 'Threat model review for the new identity verification micro-service that integrates with third-party KYC providers.',
+    status: ReviewStatus.CUSTOMER_WORK_NEEDED,
+    urgent: false,
+    needByDate: today.add(10, 'day').toISOString(),
+    submittedDate: today.subtract(5, 'day').toISOString(),
+    submittedBy: { id: 'usr-001', name: 'Jane Mitchell', email: 'jane.mitchell@acmecorp.com' },
+    attachments: [
+      { type: AttachmentType.TMR_QUESTIONNAIRE, fileName: 'kyc_questionnaire.pdf', fileSize: 201000 },
+      { type: AttachmentType.DATA_FLOW_DIAGRAM, fileName: 'kyc_dfd_B123C.vsdx', fileSize: 487000 },
+      { type: AttachmentType.THREAT_FINDINGS_REPORT, fileName: 'kyc_findings_B124C.xlsx', fileSize: 256000 },
+    ],
+    scheduledDate: null,
+    reviewNotes: [],
+    reviewVotes: [],
+    returnReason: 'The data flow diagram does not include the connection to the external KYC provider API. Additionally, the threat findings report is missing risk ratings for the PII data handling flows. Please update both documents and re-submit.',
   },
 ];

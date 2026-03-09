@@ -144,7 +144,7 @@ export async function cancelReview(id) {
   return fetchReviewById(id);
 }
 
-export async function completeReview(id, { notes, votes }) {
+export async function completeReview(id, { notes, votes, actionItems }) {
   await delay(800);
   reviews = reviews.map((r) => {
     if (r.id !== id) return r;
@@ -152,6 +152,7 @@ export async function completeReview(id, { notes, votes }) {
       ...r,
       status: ReviewStatus.TM_REVIEW_COMPLETE,
       reviewNotes: notes || r.reviewNotes,
+      actionItems: actionItems || r.actionItems || [],
       reviewVotes: votes || r.reviewVotes,
     };
   });
