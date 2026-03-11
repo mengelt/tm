@@ -13,6 +13,11 @@ import {
   CircularProgress,
   Stack,
   InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import SendIcon from '@mui/icons-material/Send';
@@ -41,6 +46,7 @@ export default function IntakeForm() {
   const [submitting, setSubmitting] = useState(false);
   const [returnReason, setReturnReason] = useState(null);
 
+  const [successOpen, setSuccessOpen] = useState(false);
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [needByDate, setNeedByDate] = useState(null);
@@ -121,7 +127,7 @@ export default function IntakeForm() {
       } else {
         await submitReview(payload);
       }
-      navigate('/customer');
+      setSuccessOpen(true);
     } finally {
       setSubmitting(false);
     }
@@ -278,6 +284,21 @@ export default function IntakeForm() {
           </Box>
         </CardContent>
       </Card>
+
+      <Dialog open={successOpen} onClose={() => navigate('/customer')}>
+        <DialogTitle>Submission Success!</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Your request for Threat Model review has been received. It will be reviewed and a meeting
+            will be scheduled, or your request may be returned to you for additional information.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button variant="contained" onClick={() => navigate('/customer')}>
+            OK
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
