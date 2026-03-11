@@ -25,6 +25,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import AddCommentIcon from '@mui/icons-material/AddComment';
 import HowToVoteIcon from '@mui/icons-material/HowToVote';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -66,6 +67,11 @@ export default function StartReview() {
     'David Chen': null,
     'Emily Park': null,
     'James Liu': null,
+  });
+  const [reviewerComments, setReviewerComments] = useState({
+    'David Chen': '',
+    'Emily Park': '',
+    'James Liu': '',
   });
   const [completing, setCompleting] = useState(false);
   const [returnDialog, setReturnDialog] = useState(false);
@@ -118,6 +124,10 @@ export default function StartReview() {
     setReviewerVotes((prev) => ({ ...prev, [reviewerName]: newValue }));
   };
 
+  const handleCommentChange = (reviewerName, value) => {
+    setReviewerComments((prev) => ({ ...prev, [reviewerName]: value }));
+  };
+
   const hasAnyReject = Object.values(reviewerVotes).some(
     (v) => v === VoteResult.REJECT
   );
@@ -130,6 +140,7 @@ export default function StartReview() {
       .map(([voter, result]) => ({
         voter,
         result,
+        comment: reviewerComments[voter] || '',
         timestamp: new Date().toISOString(),
       }));
     await completeReview(id, { notes, votes, actionItems });
@@ -152,6 +163,7 @@ export default function StartReview() {
     if (value === VoteResult.ACCEPT) return 'success';
     if (value === VoteResult.ACCEPT_WITH_ACTIONS) return 'warning';
     if (value === VoteResult.REJECT) return 'error';
+    if (value === VoteResult.NOT_PRESENT) return 'info';
     return 'standard';
   };
 
@@ -228,7 +240,7 @@ export default function StartReview() {
             ) : (
               <List dense>
                 {attachments.map((att, idx) => (
-                  <ListItem key={idx} sx={{ pr: 6 }}>
+                  <ListItem key={idx} sx={{ pr: 10 }}>
                     <ListItemIcon sx={{ minWidth: 36 }}>
                       <InsertDriveFileIcon color="action" />
                     </ListItemIcon>
@@ -237,6 +249,11 @@ export default function StartReview() {
                       secondary={`${att.type} — ${formatSize(att.fileSize)}`}
                     />
                     <ListItemSecondaryAction>
+                      <Tooltip title="AI Analysis">
+                        <IconButton size="small" color="primary" sx={{ mr: 0.5 }}>
+                          <AutoAwesomeIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
                       <Tooltip title="Delete attachment">
                         <IconButton
                           edge="end"
@@ -396,7 +413,9 @@ export default function StartReview() {
                           ? 'success.300'
                           : vote === VoteResult.ACCEPT_WITH_ACTIONS
                             ? 'warning.300'
-                            : 'divider',
+                            : vote === VoteResult.NOT_PRESENT
+                              ? 'info.300'
+                              : 'divider',
                     }}
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
@@ -415,9 +434,26 @@ export default function StartReview() {
                         size="small"
                       >
                         <ToggleButton
+                          value={VoteResult.NOT_PRESENT}
+                          sx={{
+                            px: 1.5,
+                            py: 0.5,
+                            fontSize: '0.75rem',
+                            '&.Mui-selected': {
+                              bgcolor: 'info.main',
+                              color: 'white',
+                              '&:hover': { bgcolor: 'info.dark' },
+                            },
+                          }}
+                        >
+                          Not Present
+                        </ToggleButton>
+                        <ToggleButton
                           value={VoteResult.REJECT}
                           sx={{
-                            px: 2,
+                            px: 1.5,
+                            py: 0.5,
+                            fontSize: '0.75rem',
                             '&.Mui-selected': {
                               bgcolor: 'error.main',
                               color: 'white',
@@ -430,7 +466,9 @@ export default function StartReview() {
                         <ToggleButton
                           value={VoteResult.ACCEPT_WITH_ACTIONS}
                           sx={{
-                            px: 2,
+                            px: 1.5,
+                            py: 0.5,
+                            fontSize: '0.75rem',
                             '&.Mui-selected': {
                               bgcolor: 'warning.main',
                               color: 'white',
@@ -438,12 +476,14 @@ export default function StartReview() {
                             },
                           }}
                         >
-                          Accept with Actions
+                          Accept w/ Actions
                         </ToggleButton>
                         <ToggleButton
                           value={VoteResult.ACCEPT}
                           sx={{
-                            px: 2,
+                            px: 1.5,
+                            py: 0.5,
+                            fontSize: '0.75rem',
                             '&.Mui-selected': {
                               bgcolor: 'success.main',
                               color: 'white',
@@ -455,6 +495,16 @@ export default function StartReview() {
                         </ToggleButton>
                       </ToggleButtonGroup>
                     </Box>
+                    <TextField
+                      size="small"
+                      placeholder="Optional comment..."
+                      value={reviewerComments[reviewer.name]}
+                      onChange={(e) => handleCommentChange(reviewer.name, e.target.value)}
+                      fullWidth
+                      multiline
+                      maxRows={2}
+                      sx={{ mt: 1.5 }}
+                    />
                   </Paper>
                 );
               })}

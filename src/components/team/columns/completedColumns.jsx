@@ -16,22 +16,6 @@ export default function getCompletedColumns({ onView }) {
     needByDateColumn,
     scheduledDateColumn,
     {
-      field: 'reviewVotes',
-      headerName: 'Outcome',
-      width: 120,
-      valueGetter: (value) => {
-        if (!value || value.length === 0) return '—';
-        const accepts = value.filter((v) => v.result === 'Accept').length;
-        const withActions = value.filter((v) => v.result === 'Accept with Actions').length;
-        const rejects = value.filter((v) => v.result === 'Reject').length;
-        const parts = [];
-        if (accepts) parts.push(`${accepts} Accept`);
-        if (withActions) parts.push(`${withActions} w/Actions`);
-        if (rejects) parts.push(`${rejects} Reject`);
-        return parts.join(', ') || '—';
-      },
-    },
-    {
       field: 'actions',
       type: 'actions',
       headerName: 'Actions',

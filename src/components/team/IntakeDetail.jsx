@@ -11,12 +11,16 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  ListItemSecondaryAction,
   CircularProgress,
   Stack,
   Chip,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import EventIcon from '@mui/icons-material/Event';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -143,7 +147,7 @@ export default function IntakeDetail() {
             <Typography variant="h6" gutterBottom>Attachments</Typography>
             <List dense>
               {review.attachments.map((att, idx) => (
-                <ListItem key={idx}>
+                <ListItem key={idx} sx={{ pr: 6 }}>
                   <ListItemIcon sx={{ minWidth: 36 }}>
                     <InsertDriveFileIcon color="action" />
                   </ListItemIcon>
@@ -151,6 +155,13 @@ export default function IntakeDetail() {
                     primary={att.fileName}
                     secondary={`${att.type} — ${formatSize(att.fileSize)}`}
                   />
+                  <ListItemSecondaryAction>
+                    <Tooltip title="AI Analysis">
+                      <IconButton edge="end" size="small" color="primary">
+                        <AutoAwesomeIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </ListItemSecondaryAction>
                 </ListItem>
               ))}
             </List>

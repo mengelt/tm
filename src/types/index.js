@@ -18,6 +18,7 @@ export const UserRole = {
 };
 
 export const VoteResult = {
+  NOT_PRESENT: 'Not Present',
   REJECT: 'Reject',
   ACCEPT_WITH_ACTIONS: 'Accept with Actions',
   ACCEPT: 'Accept',
