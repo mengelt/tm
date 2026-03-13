@@ -12,3 +12,12 @@ on the TM Team View, lets rename Customer Work tab to Customer Rework
 
 for the ID, lets use the format TMR-YY-NNNN where year is last two digits of year (e.g. 2026 = 26) and NNNN is a sequential number. so the first in the queue for 2026 is TMR-26-0001, 2nd is TMR-26-0002 etc
 
+
+add/edit reviewer
+add way for customer to update their attachments
+TMR prefilled, can be customized
+proof of concept checkbox, append T to tmr id
+TMR types (proof of concept, test, new/renewal/update)
+calendar
+add action button for start renewal
+need to save revs

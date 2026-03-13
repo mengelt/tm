@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { Box, Typography, Tabs, Tab, Button, Card, CardContent, Divider } from '@mui/material';
 import InboxIcon from '@mui/icons-material/Inbox';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
@@ -33,7 +33,7 @@ const STATUS_TABS = [
 ];
 
 export default function TeamDashboard() {
-  const navigate = useNavigate();
+  const history = useHistory();
   const [activeTab, setActiveTab] = useState(0);
   const [allReviews, setAllReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -76,16 +76,16 @@ export default function TeamDashboard() {
   // Build columns per status
   const columnsByTab = [
     getIntakeReviewColumns({
-      onViewDetails: (row) => navigate(`/team/intake/${row.id}`),
+      onViewDetails: (row) => history.push(`/team/intake/${row.id}`),
     }),
     getCustomerWorkColumns(),
     getScheduledColumns({
-      onStart: (row) => navigate(`/team/review/${row.id}`),
+      onStart: (row) => history.push(`/team/review/${row.id}`),
       onReschedule: (row) => setScheduleDialog({ open: true, review: row }),
       onCancel: (row) => setCancelDialog({ open: true, review: row }),
     }),
     getCompletedColumns({
-      onView: (row) => navigate(`/team/review/${row.id}/view`),
+      onView: (row) => history.push(`/team/review/${row.id}/view`),
     }),
     getCanceledColumns(),
   ];
@@ -146,7 +146,7 @@ export default function TeamDashboard() {
           {isScheduledTab && calendarView ? (
             <CalendarView
               rows={currentRows}
-              onStart={(row) => navigate(`/team/review/${row.id}`)}
+              onStart={(row) => history.push(`/team/review/${row.id}`)}
               onReschedule={(row) => setScheduleDialog({ open: true, review: row })}
               onCancel={(row) => setCancelDialog({ open: true, review: row })}
             />

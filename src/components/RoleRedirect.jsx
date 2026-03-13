@@ -1,13 +1,12 @@
-import { Navigate } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserRole } from '../types';
 
 export default function RoleRedirect() {
   const { role } = useAuth();
   return (
-    <Navigate
+    <Redirect
       to={role === UserRole.CUSTOMER ? '/customer' : '/team'}
-      replace
     />
   );
 }

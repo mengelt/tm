@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -24,7 +24,7 @@ import { ReviewStatus } from '../../types';
 import { fetchReviewsBySubmitter, cancelReview } from '../../mock/api';
 
 export default function CustomerDashboard() {
-  const navigate = useNavigate();
+  const history = useHistory();
   const { user } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -121,7 +121,7 @@ export default function CustomerDashboard() {
               key="edit"
               icon={<EditIcon />}
               label="Edit & Re-Submit"
-              onClick={() => navigate(`/customer/edit/${params.id}`)}
+              onClick={() => history.push(`/customer/edit/${params.id}`)}
               showInMenu={false}
             />,
             <GridActionsCellItem
@@ -150,7 +150,7 @@ export default function CustomerDashboard() {
               key="view"
               icon={<VisibilityIcon />}
               label="View Review"
-              onClick={() => navigate(`/team/review/${params.id}/view`)}
+              onClick={() => history.push(`/team/review/${params.id}/view`)}
             />
           );
         }
@@ -179,7 +179,7 @@ export default function CustomerDashboard() {
       <Button
         variant="contained"
         startIcon={<AddIcon />}
-        onClick={() => navigate('/customer/new')}
+        onClick={() => history.push('/customer/new')}
       >
         Create Your First Request
       </Button>
@@ -195,7 +195,7 @@ export default function CustomerDashboard() {
             <Button
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => navigate('/customer/new')}
+              onClick={() => history.push('/customer/new')}
             >
               New Request
             </Button>

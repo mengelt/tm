@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -36,7 +36,7 @@ function getVoteChipProps(result) {
 
 export default function ViewReview() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const history = useHistory();
   const [review, setReview] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,7 +69,7 @@ export default function ViewReview() {
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate(-1)}
+        onClick={() => history.goBack()}
         sx={{ mb: 2 }}
       >
         Back

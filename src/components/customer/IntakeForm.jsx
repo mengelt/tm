@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -38,7 +38,7 @@ const attachmentTypes = [
 
 export default function IntakeForm() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const history = useHistory();
   const { user } = useAuth();
   const isEdit = Boolean(id);
 
@@ -145,7 +145,7 @@ export default function IntakeForm() {
     <Box sx={{ maxWidth: 720, mx: 'auto' }}>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate('/customer')}
+        onClick={() => history.push('/customer')}
         sx={{ mb: 2 }}
       >
         Back to Dashboard
@@ -278,7 +278,7 @@ export default function IntakeForm() {
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                 <Button
                   variant="outlined"
-                  onClick={() => navigate('/customer')}
+                  onClick={() => history.push('/customer')}
                 >
                   Cancel
                 </Button>
@@ -296,7 +296,7 @@ export default function IntakeForm() {
         </CardContent>
       </Card>
 
-      <Dialog open={successOpen} onClose={() => navigate('/customer')}>
+      <Dialog open={successOpen} onClose={() => history.push('/customer')}>
         <DialogTitle>Submission Success!</DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -305,7 +305,7 @@ export default function IntakeForm() {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button variant="contained" onClick={() => navigate('/customer')}>
+          <Button variant="contained" onClick={() => history.push('/customer')}>
             OK
           </Button>
         </DialogActions>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -37,7 +37,7 @@ import {
 
 export default function IntakeDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const history = useHistory();
   const [review, setReview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [returnDialog, setReturnDialog] = useState(false);
@@ -55,19 +55,19 @@ export default function IntakeDetail() {
   const handleReturn = async (reason) => {
     await returnToCustomer(id, reason);
     setReturnDialog(false);
-    navigate('/team');
+    history.push('/team');
   };
 
   const handleCancel = async () => {
     await cancelReview(id);
     setCancelDialog(false);
-    navigate('/team');
+    history.push('/team');
   };
 
   const handleSchedule = async (date) => {
     await scheduleReview(id, date);
     setScheduleDialog(false);
-    navigate('/team');
+    history.push('/team');
   };
 
   const formatSize = (bytes) => {
@@ -88,7 +88,7 @@ export default function IntakeDetail() {
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate('/team')}
+        onClick={() => history.push('/team')}
         sx={{ mb: 2 }}
       >
         Back to Queue

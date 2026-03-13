@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -65,7 +65,7 @@ const AVAILABLE_REVIEWERS = [
 
 export default function StartReview() {
   const { id } = useParams();
-  const navigate = useNavigate();
+  const history = useHistory();
   const { user } = useAuth();
 
   const [review, setReview] = useState(null);
@@ -183,13 +183,13 @@ export default function StartReview() {
         timestamp: new Date().toISOString(),
       }));
     await completeReview(id, { notes, votes, actionItems });
-    navigate('/team');
+    history.push('/team');
   };
 
   const handleReturn = async (reason) => {
     await returnToCustomer(id, reason);
     setReturnDialog(false);
-    navigate('/team');
+    history.push('/team');
   };
 
   const formatSize = (bytes) => {
@@ -217,7 +217,7 @@ export default function StartReview() {
     <Box sx={{ maxWidth: 900, mx: 'auto' }}>
       <Button
         startIcon={<ArrowBackIcon />}
-        onClick={() => navigate('/team')}
+        onClick={() => history.push('/team')}
         sx={{ mb: 2 }}
       >
         Back to Queue

@@ -1,4 +1,4 @@
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 import {
   List,
   ListItem,
@@ -29,7 +29,7 @@ const navItems = [
 
 export default function Sidebar() {
   const { user, role, toggleRole } = useAuth();
-  const navigate = useNavigate();
+  const history = useHistory();
   const location = useLocation();
 
   return (
@@ -67,7 +67,7 @@ export default function Sidebar() {
             <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
               <ListItemButton
                 selected={selected}
-                onClick={() => navigate(item.path)}
+                onClick={() => history.push(item.path)}
                 sx={{
                   borderRadius: 2,
                   '&.Mui-selected': {

@@ -1,11 +1,11 @@
-import { RouterProvider } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import theme from './theme';
 import { AuthProvider } from './context/AuthContext';
-import router from './routes';
+import AppRoutes from './routes';
 
 export default function App() {
   return (
@@ -13,7 +13,9 @@ export default function App() {
       <CssBaseline />
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <AuthProvider>
-          <RouterProvider router={router} />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
         </AuthProvider>
       </LocalizationProvider>
     </ThemeProvider>
