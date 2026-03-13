@@ -1,8 +1,9 @@
+import { withRouter } from 'react-router-dom';
 import { Box, Container } from '@mui/material';
 import Sidebar from './Sidebar';
 import ChatBot from '../shared/ChatBot';
 
-export default function AppLayout({ children }) {
+function AppLayout({ children }) {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       <Container maxWidth="xl" sx={{ py: 3 }}>
@@ -17,3 +18,5 @@ export default function AppLayout({ children }) {
     </Box>
   );
 }
+
+export default withRouter(AppLayout);
