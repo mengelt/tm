@@ -1,62 +1,54 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Drawer,
   List,
   ListItem,
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Toolbar,
   Box,
   Typography,
   Divider,
+  Paper,
+  Avatar,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import ShieldIcon from '@mui/icons-material/Shield';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import GroupsIcon from '@mui/icons-material/Groups';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
 
-const DRAWER_WIDTH = 260;
+const NAV_WIDTH = 240;
+
+const navItems = [
+  { label: 'My Submissions', path: '/customer', icon: <DashboardIcon /> },
+  { label: 'Review Queue', path: '/team', icon: <GroupsIcon /> },
+];
 
 export default function Sidebar() {
-  const { role } = useAuth();
+  const { user, role, toggleRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const customerItems = [
-    { label: 'My Submissions', path: '/customer', icon: <DashboardIcon /> },
-    { label: 'New Request', path: '/customer/new', icon: <AddCircleOutlineIcon /> },
-  ];
-
-  const teamItems = [
-    { label: 'Review Queue', path: '/team', icon: <GroupsIcon /> },
-  ];
-
-  const items = role === UserRole.CUSTOMER ? customerItems : teamItems;
-
   return (
-    <Drawer
-      variant="permanent"
+    <Paper
+      elevation={0}
       sx={{
-        width: DRAWER_WIDTH,
+        width: NAV_WIDTH,
+        minWidth: NAV_WIDTH,
         flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-          borderRight: '1px solid',
-          borderColor: 'divider',
-          bgcolor: 'background.paper',
-        },
+        alignSelf: 'flex-start',
+        position: 'sticky',
+        top: 24,
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+        overflow: 'hidden',
       }}
     >
-      <Toolbar
-        sx={{
-          px: 2.5,
-          gap: 1.5,
-        }}
-      >
+      <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
         <ShieldIcon color="primary" sx={{ fontSize: 28 }} />
         <Box>
           <Typography variant="subtitle1" fontWeight={700} color="primary" lineHeight={1.2}>
@@ -66,10 +58,10 @@ export default function Sidebar() {
             Threat Model Review
           </Typography>
         </Box>
-      </Toolbar>
+      </Box>
       <Divider />
-      <List sx={{ px: 1.5, pt: 1 }}>
-        {items.map((item) => {
+      <List sx={{ px: 1.5, pt: 1, pb: 1 }}>
+        {navItems.map((item) => {
           const selected = location.pathname === item.path;
           return (
             <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
@@ -93,8 +85,39 @@ export default function Sidebar() {
           );
         })}
       </List>
-    </Drawer>
+      <Divider />
+      <Box sx={{ px: 2, py: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+          <Avatar sx={{ width: 28, height: 28, bgcolor: 'primary.main' }}>
+            <PersonIcon sx={{ fontSize: 16 }} />
+          </Avatar>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="body2" fontWeight={600} noWrap>
+              {user.name}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" noWrap>
+              {user.email}
+            </Typography>
+          </Box>
+        </Box>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={role === UserRole.TM_TEAM}
+              onChange={toggleRole}
+              size="small"
+            />
+          }
+          label={
+            <Typography variant="caption" color="text.secondary">
+              {role === UserRole.TM_TEAM ? 'TM Team View' : 'Customer View'}
+            </Typography>
+          }
+          sx={{ ml: 0 }}
+        />
+      </Box>
+    </Paper>
   );
 }
 
-export { DRAWER_WIDTH };
+export { NAV_WIDTH };

@@ -11,7 +11,6 @@ import {
 import PersonIcon from '@mui/icons-material/Person';
 import { useAuth } from '../../context/AuthContext';
 import { UserRole } from '../../types';
-import { DRAWER_WIDTH } from './Sidebar';
 
 export default function Header() {
   const { user, role, toggleRole } = useAuth();
@@ -21,8 +20,6 @@ export default function Header() {
       position="fixed"
       elevation={0}
       sx={{
-        width: `calc(100% - ${DRAWER_WIDTH}px)`,
-        ml: `${DRAWER_WIDTH}px`,
         bgcolor: 'background.paper',
         borderBottom: '1px solid',
         borderColor: 'divider',
