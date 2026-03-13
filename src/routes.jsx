@@ -1,4 +1,4 @@
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Switch, Route, Redirect, useLocation } from 'react-router-dom';
 import AppLayout from './components/layout/AppLayout';
 import CustomerDashboard from './components/customer/CustomerDashboard';
 import IntakeForm from './components/customer/IntakeForm';
@@ -9,9 +9,11 @@ import ViewReview from './components/review/ViewReview';
 import RoleRedirect from './components/RoleRedirect';
 
 export default function AppRoutes() {
+  const location = useLocation();
+
   return (
     <AppLayout>
-      <Switch>
+      <Switch location={location}>
         <Route exact path="/" component={RoleRedirect} />
         <Route exact path="/customer" component={CustomerDashboard} />
         <Route exact path="/customer/new" component={IntakeForm} />
