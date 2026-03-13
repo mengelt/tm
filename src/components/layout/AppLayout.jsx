@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { Box, Toolbar } from '@mui/material';
+import { Box, Container, Toolbar } from '@mui/material';
 import Sidebar, { DRAWER_WIDTH } from './Sidebar';
 import Header from './Header';
 import ChatBot from '../shared/ChatBot';
@@ -18,7 +18,9 @@ export default function AppLayout() {
         }}
       >
         <Toolbar />
-        <Outlet />
+        <Container maxWidth="lg">
+          <Outlet />
+        </Container>
       </Box>
       <ChatBot />
     </Box>
