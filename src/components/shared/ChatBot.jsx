@@ -161,7 +161,7 @@ export default function ChatBot() {
       sx={{
         position: 'fixed',
         bottom: 24,
-        right: 24,
+        left: 24,
         zIndex: 1300,
         width: 400,
         height: 520,

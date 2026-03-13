@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography, Tabs, Tab, Button } from '@mui/material';
+import { Box, Typography, Tabs, Tab, Button, Card, CardContent, Divider } from '@mui/material';
 import InboxIcon from '@mui/icons-material/Inbox';
 import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import EventIcon from '@mui/icons-material/Event';
@@ -97,56 +97,64 @@ export default function TeamDashboard() {
 
   return (
     <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        Review Queue
-      </Typography>
+      <Card>
+        <CardContent sx={{ pb: 0 }}>
+          <Typography variant="h5" sx={{ mb: 2 }}>
+            Review Queue
+          </Typography>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Tabs
-          value={activeTab}
-          onChange={(_, v) => { setActiveTab(v); setCalendarView(false); }}
-          sx={{
-            flexGrow: 1,
-            '& .MuiTab-root': {
-              textTransform: 'none',
-              minHeight: 48,
-              px: 3,
-            },
-          }}
-        >
-          {STATUS_TABS.map(({ status, label, icon }) => (
-            <Tab
-              key={status}
-              icon={icon}
-              iconPosition="start"
-              label={label}
-              sx={{ gap: 0.5 }}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Tabs
+              value={activeTab}
+              onChange={(_, v) => { setActiveTab(v); setCalendarView(false); }}
+              sx={{
+                flexGrow: 1,
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  minHeight: 48,
+                  px: 3,
+                },
+              }}
+            >
+              {STATUS_TABS.map(({ status, label, icon }) => (
+                <Tab
+                  key={status}
+                  icon={icon}
+                  iconPosition="start"
+                  label={label}
+                  sx={{ gap: 0.5 }}
+                />
+              ))}
+            </Tabs>
+            {isScheduledTab && (
+              <Button
+                variant={calendarView ? 'contained' : 'outlined'}
+                size="small"
+                startIcon={calendarView ? <ViewListIcon /> : <CalendarMonthIcon />}
+                onClick={() => setCalendarView((v) => !v)}
+                sx={{ ml: 2, whiteSpace: 'nowrap' }}
+              >
+                {calendarView ? 'List View' : 'Calendar View'}
+              </Button>
+            )}
+          </Box>
+        </CardContent>
+
+        <Divider />
+
+        <CardContent sx={{ pt: 2 }}>
+          {isScheduledTab && calendarView ? (
+            <CalendarView
+              rows={currentRows}
+              onStart={(row) => navigate(`/team/review/${row.id}`)}
+              onReschedule={(row) => setScheduleDialog({ open: true, review: row })}
+              onCancel={(row) => setCancelDialog({ open: true, review: row })}
             />
-          ))}
-        </Tabs>
-        {isScheduledTab && (
-          <Button
-            variant={calendarView ? 'contained' : 'outlined'}
-            size="small"
-            startIcon={calendarView ? <ViewListIcon /> : <CalendarMonthIcon />}
-            onClick={() => setCalendarView((v) => !v)}
-            sx={{ ml: 2, whiteSpace: 'nowrap' }}
-          >
-            {calendarView ? 'List View' : 'Calendar View'}
-          </Button>
-        )}
-      </Box>
-
-      {isScheduledTab && calendarView ? (
-        <CalendarView
-          rows={currentRows}
-          onStart={(row) => navigate(`/team/review/${row.id}`)}
-          onReschedule={(row) => setScheduleDialog({ open: true, review: row })}
-          onCancel={(row) => setCancelDialog({ open: true, review: row })}
-        />
-      ) : (
-        <QueueTab rows={currentRows} columns={currentColumns} loading={loading} />
-      )}
+          ) : (
+            <QueueTab rows={currentRows} columns={currentColumns} loading={loading} />
+          )}
+        </CardContent>
+      </Card>
 
       {/* Cancel Dialog */}
       <ConfirmDialog

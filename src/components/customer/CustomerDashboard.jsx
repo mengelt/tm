@@ -5,6 +5,9 @@ import {
   Typography,
   Button,
   Paper,
+  Card,
+  CardContent,
+  Divider,
   CircularProgress,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
@@ -185,45 +188,53 @@ export default function CustomerDashboard() {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h5">My Submissions</Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => navigate('/customer/new')}
-        >
-          New Request
-        </Button>
-      </Box>
-
-      <Paper sx={{ height: 600 }}>
-        {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-            <CircularProgress />
+      <Card>
+        <CardContent>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h5">My Submissions</Typography>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => navigate('/customer/new')}
+            >
+              New Request
+            </Button>
           </Box>
-        ) : reviews.length === 0 ? (
-          renderEmptyState()
-        ) : (
-          <DataGrid
-            rows={reviews}
-            columns={columns}
-            initialState={{
-              sorting: {
-                sortModel: [{ field: 'submittedDate', sort: 'desc' }],
-              },
-            }}
-            pageSizeOptions={[10, 25, 50]}
-            pagination
-            disableRowSelectionOnClick
-            sx={{
-              border: 'none',
-              '& .MuiDataGrid-columnHeaders': {
-                bgcolor: 'grey.50',
-              },
-            }}
-          />
-        )}
-      </Paper>
+        </CardContent>
+
+        <Divider />
+
+        <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
+          <Box sx={{ height: 600 }}>
+            {loading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+                <CircularProgress />
+              </Box>
+            ) : reviews.length === 0 ? (
+              renderEmptyState()
+            ) : (
+              <DataGrid
+                rows={reviews}
+                columns={columns}
+                initialState={{
+                  sorting: {
+                    sortModel: [{ field: 'submittedDate', sort: 'desc' }],
+                  },
+                }}
+                pageSizeOptions={[10, 25, 50]}
+                pagination
+                disableRowSelectionOnClick
+                sx={{
+                  border: 'none',
+                  '& .MuiDataGrid-columnHeaders': {
+                    bgcolor: 'grey.50',
+                  },
+                }}
+              />
+            )}
+          </Box>
+        </CardContent>
+      </Card>
 
       <ConfirmDialog
         open={Boolean(cancelTarget)}
