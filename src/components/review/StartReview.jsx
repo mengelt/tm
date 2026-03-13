@@ -22,6 +22,9 @@ import {
   Paper,
   IconButton,
   Tooltip,
+  Menu,
+  MenuItem,
+  ListItemText as MenuItemText,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
@@ -33,6 +36,8 @@ import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PlaylistAddCheckIcon from '@mui/icons-material/PlaylistAddCheck';
 import CloseIcon from '@mui/icons-material/Close';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
 import dayjs from 'dayjs';
 import StatusChip from '../shared/StatusChip';
 import ConfirmDialog from '../shared/ConfirmDialog';
@@ -45,10 +50,17 @@ import {
   returnToCustomer,
 } from '../../mock/api';
 
-const REVIEWERS = [
+const DEFAULT_REVIEWERS = [
   { name: 'David Chen', title: 'Senior Security Architect' },
   { name: 'Emily Park', title: 'Threat Modeling Lead' },
   { name: 'James Liu', title: 'Application Security Engineer' },
+];
+
+const AVAILABLE_REVIEWERS = [
+  ...DEFAULT_REVIEWERS,
+  { name: 'Sarah Kim', title: 'Security Analyst' },
+  { name: 'Alex Rivera', title: 'Principal Security Engineer' },
+  { name: 'Mia Thompson', title: 'Cloud Security Architect' },
 ];
 
 export default function StartReview() {
@@ -63,6 +75,7 @@ export default function StartReview() {
   const [actionItemText, setActionItemText] = useState('');
   const [actionItems, setActionItems] = useState([]);
   const [attachments, setAttachments] = useState([]);
+  const [reviewers, setReviewers] = useState([...DEFAULT_REVIEWERS]);
   const [reviewerVotes, setReviewerVotes] = useState({
     'David Chen': null,
     'Emily Park': null,
@@ -75,6 +88,7 @@ export default function StartReview() {
   });
   const [completing, setCompleting] = useState(false);
   const [returnDialog, setReturnDialog] = useState(false);
+  const [addReviewerMenu, setAddReviewerMenu] = useState(null);
 
   useEffect(() => {
     setLoading(true);
@@ -128,6 +142,31 @@ export default function StartReview() {
     setReviewerComments((prev) => ({ ...prev, [reviewerName]: value }));
   };
 
+  const handleAddReviewer = (reviewer) => {
+    setReviewers((prev) => [...prev, reviewer]);
+    setReviewerVotes((prev) => ({ ...prev, [reviewer.name]: null }));
+    setReviewerComments((prev) => ({ ...prev, [reviewer.name]: '' }));
+    setAddReviewerMenu(null);
+  };
+
+  const handleRemoveReviewer = (reviewerName) => {
+    setReviewers((prev) => prev.filter((r) => r.name !== reviewerName));
+    setReviewerVotes((prev) => {
+      const next = { ...prev };
+      delete next[reviewerName];
+      return next;
+    });
+    setReviewerComments((prev) => {
+      const next = { ...prev };
+      delete next[reviewerName];
+      return next;
+    });
+  };
+
+  const availableToAdd = AVAILABLE_REVIEWERS.filter(
+    (ar) => !reviewers.some((r) => r.name === ar.name)
+  );
+
   const hasAnyReject = Object.values(reviewerVotes).some(
     (v) => v === VoteResult.REJECT
   );
@@ -163,7 +202,6 @@ export default function StartReview() {
     if (value === VoteResult.ACCEPT) return 'success';
     if (value === VoteResult.ACCEPT_WITH_ACTIONS) return 'warning';
     if (value === VoteResult.REJECT) return 'error';
-    if (value === VoteResult.NOT_PRESENT) return 'info';
     return 'standard';
   };
 
@@ -392,13 +430,35 @@ export default function StartReview() {
         {/* Reviewer Votes */}
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              <HowToVoteIcon sx={{ verticalAlign: 'text-bottom', mr: 1 }} />
-              Reviewer Decisions
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Typography variant="h6" sx={{ display: 'flex', alignItems: 'center' }}>
+                <HowToVoteIcon sx={{ mr: 1 }} />
+                Reviewer Decisions
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PersonAddIcon />}
+                onClick={(e) => setAddReviewerMenu(e.currentTarget)}
+                disabled={availableToAdd.length === 0}
+              >
+                Add Reviewer
+              </Button>
+              <Menu
+                anchorEl={addReviewerMenu}
+                open={Boolean(addReviewerMenu)}
+                onClose={() => setAddReviewerMenu(null)}
+              >
+                {availableToAdd.map((r) => (
+                  <MenuItem key={r.name} onClick={() => handleAddReviewer(r)}>
+                    <MenuItemText primary={r.name} secondary={r.title} />
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
 
             <Stack spacing={2}>
-              {REVIEWERS.map((reviewer) => {
+              {reviewers.map((reviewer) => {
                 const vote = reviewerVotes[reviewer.name];
                 return (
                   <Paper
@@ -413,17 +473,26 @@ export default function StartReview() {
                           ? 'success.300'
                           : vote === VoteResult.ACCEPT_WITH_ACTIONS
                             ? 'warning.300'
-                            : vote === VoteResult.NOT_PRESENT
-                              ? 'info.300'
-                              : 'divider',
+                            : 'divider',
                     }}
                   >
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-                      <Box>
-                        <Typography variant="subtitle2">{reviewer.name}</Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {reviewer.title}
-                        </Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box>
+                          <Typography variant="subtitle2">{reviewer.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {reviewer.title}
+                          </Typography>
+                        </Box>
+                        <Tooltip title="Remove reviewer">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleRemoveReviewer(reviewer.name)}
+                            color="error"
+                          >
+                            <PersonRemoveIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                       </Box>
                       <ToggleButtonGroup
                         value={vote}
@@ -433,21 +502,6 @@ export default function StartReview() {
                         }}
                         size="small"
                       >
-                        <ToggleButton
-                          value={VoteResult.NOT_PRESENT}
-                          sx={{
-                            px: 1.5,
-                            py: 0.5,
-                            fontSize: '0.75rem',
-                            '&.Mui-selected': {
-                              bgcolor: 'info.main',
-                              color: 'white',
-                              '&:hover': { bgcolor: 'info.dark' },
-                            },
-                          }}
-                        >
-                          Not Present
-                        </ToggleButton>
                         <ToggleButton
                           value={VoteResult.REJECT}
                           sx={{

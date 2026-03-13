@@ -241,6 +241,17 @@ export default function IntakeForm() {
               />
 
               <Box>
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Option 1"
+                />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label="Option 2"
+                />
+              </Box>
+
+              <Box>
                 <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
                   Required Attachments
                 </Typography>
