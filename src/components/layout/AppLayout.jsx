@@ -1,4 +1,3 @@
-import { withRouter } from 'react-router-dom';
 import { Box, Container } from '@mui/material';
 import Sidebar from './Sidebar';
 import ChatBot from '../shared/ChatBot';
@@ -19,4 +18,4 @@ function AppLayout({ children }) {
   );
 }
 
-export default withRouter(AppLayout);
+export default AppLayout;

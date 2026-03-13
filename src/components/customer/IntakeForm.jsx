@@ -240,7 +240,7 @@ export default function IntakeForm() {
                 rows={4}
               />
 
-              <Box>
+              <Stack>
                 <FormControlLabel
                   control={<Checkbox />}
                   label="Option 1"
@@ -249,7 +249,7 @@ export default function IntakeForm() {
                   control={<Checkbox />}
                   label="Option 2"
                 />
-              </Box>
+              </Stack>
 
               <Box>
                 <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 600 }}>
